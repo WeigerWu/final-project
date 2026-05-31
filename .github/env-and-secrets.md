@@ -48,7 +48,30 @@ CI **不需要**資料庫或 Redis 連線：
 
 - 單元 / E2E 測試使用 mock，無需 `DATABASE_URL`
 - `prisma generate` 只驗證 schema，不連線 DB
+- SonarCloud 掃描在 `pnpm test:cov` 之後執行，需設定 **`SONAR_TOKEN`**（見下方）
 - 未來 CD workflow 才需要在 GitHub **Secrets** 設定（例如 `GCP_SA_KEY`、`DATABASE_URL`）
+
+#### SonarCloud（程式碼品質）
+
+**協作成員（repo 非本人）— 推薦用 Fork（方式 A）**
+
+1. 在 GitHub Fork upstream：`HenryLin1101/final-project` → **`weigerwu/final-project`**（你的帳號）。
+2. 將本 repo 的 SonarCloud 相關 commit push 到 **你的 fork**（含 `sonar-project.properties`、`.github/workflows/ci.yml`）。
+3. 至 [SonarCloud](https://sonarcloud.io) 用你的 GitHub 登入 → **+ → Analyze new project** → 選 **`weigerwu/final-project`** → 完成匯入（Fork 後即可正常選 repo）。
+4. 確認 [`sonar-project.properties`](../sonar-project.properties) 與 SonarCloud 一致（預設 `weigerwu` / `weigerwu_final-project`；若精靈產生的 key 不同請改檔案）。
+5. 在 SonarCloud 專案 **Administration → Analysis Method → GitHub Actions** 複製 token。
+6. 在 **fork** `weigerwu/final-project` → **Settings → Secrets → Actions** 新增 `SONAR_TOKEN`（fork 是你自己的 repo，可自行設定）。
+7. Push 到 fork 的 `main` 或開 PR → Actions 跑完後在 SonarCloud 看報告；PR 上也可有 SonarCloud check / decoration。
+
+日常開發：在 fork 上開 branch → push → 可 PR 回 upstream `HenryLin1101/final-project`；**SonarCloud 掃描只會在 fork 的 CI 觸發**（upstream 未設 `SONAR_TOKEN` 則不會跑 Sonar）。
+
+**方式 B — 手動建立（不 Fork）**
+
+若不想 Fork，可在 SonarCloud **Manually** 建專案、請 upstream admin 代加 `SONAR_TOKEN`；PR 整合較少。步驟見 git history 或詢問隊友。
+
+**方式 C — upstream 擁有者（HenryLin1101）**
+
+在 SonarCloud 匯入 `HenryLin1101/final-project`，`sonar-project.properties` 改為 `HenryLin1101` / `HenryLin1101_final-project`，並在 upstream repo 設 `SONAR_TOKEN`。
 
 ### Kubernetes（`app-env` Secret）
 
